@@ -4,11 +4,13 @@ import io.hhplus.tdd.point.enumtype.PointErrorCode;
 import io.hhplus.tdd.point.error.BusinessException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserPointCommandTest {
+@SpringBootTest
+class UserPointCommandTest {
 
     @Test
     @DisplayName("UserPointCommand 생성 실패 - id가 NULL")

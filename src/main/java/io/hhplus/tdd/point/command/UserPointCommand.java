@@ -4,12 +4,12 @@ import io.hhplus.tdd.point.error.BusinessException;
 import jdk.jfr.Description;
 import io.hhplus.tdd.point.enumtype.PointErrorCode;
 
-@Description("특정 유저의 포인트를 충전하는 기능 Command")
-public record ChargeUserPointCommand(
+@Description("특정 유저의 포인트 Command")
+public record UserPointCommand(
         Long id,
         Long amount
 ) {
-    public ChargeUserPointCommand {
+    public UserPointCommand {
         // ID 검증
         if (validateValue(id)) {
             throw new BusinessException(PointErrorCode.INVALID_USER_ID);

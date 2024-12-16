@@ -130,10 +130,33 @@ class PointServiceTest {
         // when
         BusinessException exception =
                 assertThrows(BusinessException.class, () -> {
-                    pointService.charge(command);
+                    pointService.chargePoint(command);
                 });
 
         // then
-        assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INVALID_AMOUNT);
+        assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.MAX_BALANCE_EXCEEDED);
+    }
+
+    @Test
+    @DisplayName("유저 포인트 사용 - 잔고 부족 시 실패")
+    void shouldThrowBusinessExceptionWhenUsePointExceeds() {
+        // given
+        final Long id = 1L;
+        final Long previousPoint = 500L;  // 기존 포인트 500
+        final Long useAmount = 1000L;     // 사용할 금액 1000 (잔고 부족)
+        final UserPointCommand command = new UserPointCommand(id, useAmount);
+
+        // UserPointRepository의 findById 호출 시 기존 포인트를 가진 유저 반환하도록 설정
+        UserPoint existingUserPoint = new UserPoint(id, previousPoint, System.currentTimeMillis());
+        when(userPointRepository.findById(id)).thenReturn(Optional.of(existingUserPoint));
+
+        // when
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> {
+                    pointService.usePoint(command);
+                });
+
+        // then
+        assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INSUFFICIENT_BALANCE);
     }
 }

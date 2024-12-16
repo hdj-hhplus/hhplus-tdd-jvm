@@ -19,6 +19,9 @@ public interface PointService {
     List<PointHistory> getHistory(UserIdCommand command);
 
     @Description("특정 유저 포인트 충전")
-    UserPoint charge(UserPointCommand command);
+    UserPoint chargePoint(UserPointCommand command);
+
+    @Description("특정 유저 포인트 사용")
+    UserPoint usePoint(UserPointCommand command);
 
 }

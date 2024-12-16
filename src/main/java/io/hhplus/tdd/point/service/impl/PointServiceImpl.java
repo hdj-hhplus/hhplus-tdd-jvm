@@ -43,18 +43,17 @@ public class PointServiceImpl implements PointService {
     }
 
     @Override
-    public UserPoint charge(UserPointCommand command) {
+    public UserPoint chargePoint(UserPointCommand command) {
         // 기존 UserPoint 호출
         UserPoint userPoint = userPointRepository.findById(command.id())
                 .orElse(UserPoint.empty(command.id()));
 
-        // 이전 userPoint 포인트와 충전한 포인트
-        Long previousPoint = userPoint.point();
-        Long chargedPoint = previousPoint + command.amount();
+        // 충전한 포인트
+        Long chargedPoint = userPoint.point() + command.amount();
 
         // 잔고 최대 금액(10,000,000) 검사
         if(chargedPoint > 10000000) {
-            throw new BusinessException(PointErrorCode.INVALID_AMOUNT);
+            throw new BusinessException(PointErrorCode.MAX_BALANCE_EXCEEDED);
         }
 
         // userPoint 업데이트
@@ -63,6 +62,31 @@ public class PointServiceImpl implements PointService {
 
         // 히스토리 삽입
         PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.CHARGE, savedUserPoint.updateMillis());
+        pointHistoryRepository.save(pointHistory);
+
+        return savedUserPoint;
+    }
+
+    @Override
+    public UserPoint usePoint(UserPointCommand command) {
+        // 기존 UserPoint 호출
+        UserPoint userPoint = userPointRepository.findById(command.id())
+                .orElse(UserPoint.empty(command.id()));
+
+        // 이전 userPoint 포인트와 사용한 포인트
+        Long chargedPoint = userPoint.point() - command.amount();
+
+        // 잔고 최대 금액(10,000,000) 검사
+        if(chargedPoint < 0) {
+            throw new BusinessException(PointErrorCode.INSUFFICIENT_BALANCE);
+        }
+
+        // userPoint 업데이트
+        UserPoint updateUserPoint = userPoint.changePoint(chargedPoint);
+        UserPoint savedUserPoint = userPointRepository.save(updateUserPoint);
+
+        // 히스토리 삽입
+        PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.USE, savedUserPoint.updateMillis());
         pointHistoryRepository.save(pointHistory);
 
         return savedUserPoint;

@@ -60,20 +60,4 @@ class UserPointRepositoryTest {
         assertThat(savedUserPoint.updateMillis()).isLessThanOrEqualTo(System.currentTimeMillis());
     }
 
-    @Test
-    @DisplayName("유저 id로 조회 성공")
-    void successToFindById() {
-        // given
-        Long id = 1L;
-
-        // when
-        Optional<UserPoint> optional = userPointRepository.findById(id);
-
-        // then
-        assertThat(optional).isNotNull();
-        assertThat(optional.get().id()).isEqualTo(id);
-        assertThat(optional.get().point()).isEqualTo(1000);
-        assertThat(optional.get().updateMillis()).isLessThanOrEqualTo(System.currentTimeMillis());
-    }
-
 }

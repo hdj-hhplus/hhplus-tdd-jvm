@@ -19,13 +19,15 @@ class UserIdCommandTest {
         final Long id = null;
 
         // when
-        final BusinessException exception = assertThrows(BusinessException.class, () -> {
-            new UserIdCommand(id);
-        });
+        final BusinessException exception =
+                assertThrows(BusinessException.class, () -> {
+                    new UserIdCommand(id);
+                });
 
         // then
         assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INVALID_USER_ID);
     }
+
     @Test
     @DisplayName("UserIdCommand 생성 실패 - id가 1보다 작을 때")
     void shouldFailToTestUserIdCommandWhenIdIsLessThanOne() {
@@ -33,9 +35,26 @@ class UserIdCommandTest {
         final Long id = -1L;
 
         // when
-        final BusinessException exception = assertThrows(BusinessException.class, () -> {
-            new UserIdCommand(id);
-        });
+        final BusinessException exception =
+                assertThrows(BusinessException.class, () -> {
+                    new UserIdCommand(id);
+                });
+
+        // then
+        assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INVALID_USER_ID);
+    }
+
+    @Test
+    @DisplayName("UserIdCommand 생성 실패 - id가 1000000000L보다 클 때")
+    void shouldFailToTestUserIdCommandWhenIdIsMoreThanMax() {
+        // given
+        final Long id = 2000000000L;
+
+        // when
+        final BusinessException exception =
+                assertThrows(BusinessException.class, () -> {
+                    new UserIdCommand(id);
+                });
 
         // then
         assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INVALID_USER_ID);

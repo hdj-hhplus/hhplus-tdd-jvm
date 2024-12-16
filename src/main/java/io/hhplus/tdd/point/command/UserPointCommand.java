@@ -1,5 +1,6 @@
 package io.hhplus.tdd.point.command;
 
+import io.hhplus.tdd.point.enumtype.TransactionType;
 import io.hhplus.tdd.point.error.BusinessException;
 import jdk.jfr.Description;
 import io.hhplus.tdd.point.enumtype.PointErrorCode;

@@ -1,6 +1,7 @@
 package io.hhplus.tdd.point.service.impl;
 
 import io.hhplus.tdd.point.command.UserIdCommand;
+import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.enumtype.PointErrorCode;
 import io.hhplus.tdd.point.error.BusinessException;
@@ -8,6 +9,8 @@ import io.hhplus.tdd.point.repository.UserPointRepository;
 import io.hhplus.tdd.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +30,11 @@ public class PointServiceImpl implements PointService {
         // User 데이터가 존재하는지 검사해야 하지만, User 테이블이 없으므로 생략한다.
         return userPointRepository.findById(command.id())
                 .orElse(UserPoint.empty(command.id()));
+    }
+
+    @Override
+    public List<PointHistory> getHistory(UserIdCommand command) {
+        return null;
     }
 
 

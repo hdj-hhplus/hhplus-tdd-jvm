@@ -5,6 +5,7 @@ import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.enumtype.PointErrorCode;
 import io.hhplus.tdd.point.error.BusinessException;
+import io.hhplus.tdd.point.repository.PointHistoryRepository;
 import io.hhplus.tdd.point.repository.UserPointRepository;
 import io.hhplus.tdd.point.service.PointService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class PointServiceImpl implements PointService {
      */
 
     private final UserPointRepository userPointRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
     @Override
     public UserPoint getPoint(UserIdCommand command) {
@@ -34,7 +36,8 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public List<PointHistory> getHistory(UserIdCommand command) {
-        return null;
+        // User 데이터가 존재하는지 검사해야 하지만, User 테이블이 없으므로 생략한다.
+        return pointHistoryRepository.findAllByUserId(command.id());
     }
 
 

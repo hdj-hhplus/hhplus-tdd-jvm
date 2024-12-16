@@ -56,7 +56,7 @@ class PointHistoryRepositoryTest {
         final Long userId = 1L;
 
         // when
-        List<PointHistory> pointHistories = pointHistoryRepository.findAllById(userId);
+        List<PointHistory> pointHistories = pointHistoryRepository.findAllByUserId(userId);
 
         // then
         assertThat(pointHistories).isNotNull();

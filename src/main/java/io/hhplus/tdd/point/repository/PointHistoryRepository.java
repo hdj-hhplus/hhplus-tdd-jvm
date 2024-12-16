@@ -7,6 +7,6 @@ import java.util.List;
 public interface PointHistoryRepository {
 
     PointHistory save(PointHistory userPoint);
-    List<PointHistory> findAllById(Long id);
+    List<PointHistory> findAllByUserId(Long id);
 
 }

@@ -1,9 +1,12 @@
 package io.hhplus.tdd.point.service;
 
 import io.hhplus.tdd.point.command.UserIdCommand;
+import io.hhplus.tdd.point.command.UserPointCommand;
 import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
+import io.hhplus.tdd.point.enumtype.PointErrorCode;
 import io.hhplus.tdd.point.enumtype.TransactionType;
+import io.hhplus.tdd.point.error.BusinessException;
 import io.hhplus.tdd.point.repository.PointHistoryRepository;
 import io.hhplus.tdd.point.repository.UserPointRepository;
 import io.hhplus.tdd.point.service.impl.PointServiceImpl;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -108,5 +112,28 @@ class PointServiceTest {
                 .isNotNull()
                 .hasSize(2)
                 .containsExactlyElementsOf(mockHistoryList);
+    }
+
+    @Test
+    @DisplayName("유저 포인트 충전 - 잔고 최대 금액 초과 시 실패")
+    void shouldThrowBusinessExceptionWhenChargeExceedsMax() {
+        // given
+        final Long id = 1L;
+        final Long previousPoint = 9999990L;  // 기존 포인트 9,999,990
+        final Long chargeAmount = 20000L;     // 충전할 금액 20,000
+        final UserPointCommand command = new UserPointCommand(id, chargeAmount);
+
+        // UserPointRepository의 findById 호출 시 기존 포인트를 가진 유저 반환하도록 설정
+        UserPoint existingUserPoint = new UserPoint(id, previousPoint, System.currentTimeMillis());
+        when(userPointRepository.findById(id)).thenReturn(Optional.of(existingUserPoint));
+
+        // when
+        BusinessException exception =
+                assertThrows(BusinessException.class, () -> {
+                    pointService.charge(command);
+                });
+
+        // then
+        assertThat(exception.getErrorCode()).isEqualTo(PointErrorCode.INVALID_AMOUNT);
     }
 }

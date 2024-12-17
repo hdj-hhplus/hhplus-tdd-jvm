@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,8 @@ public class PointServiceImpl implements PointService {
 
     private final UserPointRepository userPointRepository;
     private final PointHistoryRepository pointHistoryRepository;
+
+    private final ConcurrentMap<Long, ReentrantLock> locks = new ConcurrentHashMap<>();
 
     @Override
     public UserPoint getPoint(UserIdCommand command) {
@@ -44,52 +49,66 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public UserPoint chargePoint(UserPointCommand command) {
-        // 기존 UserPoint 호출
-        UserPoint userPoint = userPointRepository.findById(command.id())
-                .orElse(UserPoint.empty(command.id()));
+        // 동일 ID에 대해 락을 걸어 동기화
+        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock());
+        lock.lock();
+        try {
+            // 기존 UserPoint 호출
+            UserPoint userPoint = userPointRepository.findById(command.id())
+                    .orElse(UserPoint.empty(command.id()));
 
-        // 충전 후 포인트
-        Long chargedPoint = userPoint.point() + command.amount();
+            // 충전 후 포인트
+            Long chargedPoint = userPoint.point() + command.amount();
 
-        // 잔고 최대 금액(10,000,000) 검사
-        if(chargedPoint > 10000000) {
-            throw new BusinessException(PointErrorCode.MAX_BALANCE_EXCEEDED);
+            // 잔고 최대 금액(10,000,000) 검사
+            if(chargedPoint > 10000000) {
+                throw new BusinessException(PointErrorCode.MAX_BALANCE_EXCEEDED);
+            }
+
+            // userPoint 업데이트
+            UserPoint updateUserPoint = userPoint.changePoint(chargedPoint);
+            UserPoint savedUserPoint = userPointRepository.save(updateUserPoint);
+
+            // 히스토리 삽입
+            PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.CHARGE, savedUserPoint.updateMillis());
+            pointHistoryRepository.save(pointHistory);
+
+            return savedUserPoint;
+        } finally {
+            lock.unlock();
         }
-
-        // userPoint 업데이트
-        UserPoint updateUserPoint = userPoint.changePoint(chargedPoint);
-        UserPoint savedUserPoint = userPointRepository.save(updateUserPoint);
-
-        // 히스토리 삽입
-        PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.CHARGE, savedUserPoint.updateMillis());
-        pointHistoryRepository.save(pointHistory);
-
-        return savedUserPoint;
     }
 
     @Override
     public UserPoint usePoint(UserPointCommand command) {
-        // 기존 UserPoint 호출
-        UserPoint userPoint = userPointRepository.findById(command.id())
-                .orElse(UserPoint.empty(command.id()));
+        // 동일 ID에 대해 락을 걸어 동기화
+        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock());
+        lock.lock();
+        try {
+            // 기존 UserPoint 호출
+            UserPoint userPoint = userPointRepository.findById(command.id())
+                    .orElse(UserPoint.empty(command.id()));
 
-        // 사용 후 포인트
-        Long chargedPoint = userPoint.point() - command.amount();
+            // 사용 후 포인트
+            Long chargedPoint = userPoint.point() - command.amount();
 
-        // 잔고 최대 금액(10,000,000) 검사
-        if(chargedPoint < 0) {
-            throw new BusinessException(PointErrorCode.INSUFFICIENT_BALANCE);
+            // 잔고 최대 금액(10,000,000) 검사
+            if(chargedPoint < 0) {
+                throw new BusinessException(PointErrorCode.INSUFFICIENT_BALANCE);
+            }
+
+            // userPoint 업데이트
+            UserPoint updateUserPoint = userPoint.changePoint(chargedPoint);
+            UserPoint savedUserPoint = userPointRepository.save(updateUserPoint);
+
+            // 히스토리 삽입
+            PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.USE, savedUserPoint.updateMillis());
+            pointHistoryRepository.save(pointHistory);
+
+            return savedUserPoint;
+        } finally {
+            lock.unlock();
         }
-
-        // userPoint 업데이트
-        UserPoint updateUserPoint = userPoint.changePoint(chargedPoint);
-        UserPoint savedUserPoint = userPointRepository.save(updateUserPoint);
-
-        // 히스토리 삽입
-        PointHistory pointHistory = PointHistory.makeEntity(command.id(), command.amount(), TransactionType.USE, savedUserPoint.updateMillis());
-        pointHistoryRepository.save(pointHistory);
-
-        return savedUserPoint;
     }
 
 

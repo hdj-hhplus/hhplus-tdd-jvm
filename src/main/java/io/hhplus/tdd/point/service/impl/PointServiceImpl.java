@@ -48,7 +48,7 @@ public class PointServiceImpl implements PointService {
         UserPoint userPoint = userPointRepository.findById(command.id())
                 .orElse(UserPoint.empty(command.id()));
 
-        // 충전한 포인트
+        // 충전 후 포인트
         Long chargedPoint = userPoint.point() + command.amount();
 
         // 잔고 최대 금액(10,000,000) 검사
@@ -73,7 +73,7 @@ public class PointServiceImpl implements PointService {
         UserPoint userPoint = userPointRepository.findById(command.id())
                 .orElse(UserPoint.empty(command.id()));
 
-        // 이전 userPoint 포인트와 사용한 포인트
+        // 사용 후 포인트
         Long chargedPoint = userPoint.point() - command.amount();
 
         // 잔고 최대 금액(10,000,000) 검사

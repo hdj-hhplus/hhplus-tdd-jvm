@@ -43,7 +43,7 @@ class PointServiceTest {
     @DisplayName("유저 포인트 조회 - 존재하지 않는 유저 포인트 조회 시 0 출력하여 성공")
     void shouldSuccessToGetUserPointWithNoneExistingId() {
         // given
-        final Long id = 1L;
+        final long id = 1L;
         final UserIdCommand command = new UserIdCommand(id);
         // findById 호출 시 empty 반환하도록 설정
         when(userPointRepository.findById(id)).thenReturn(Optional.empty());
@@ -60,7 +60,7 @@ class PointServiceTest {
     @DisplayName("유저 포인트 조회 - 존재하는 유저 포인트 조회 시 1000 출력하여 성공")
     void shouldSuccessToGetUserPointWithExistingId() {
         // given
-        final Long id = 1L;
+        final long id = 1L;
         final UserIdCommand command = new UserIdCommand(id);
         // findById 호출 시 존재하는 유저 포인트 (1000) 반환하도록 설정
         when(userPointRepository.findById(id))
@@ -78,7 +78,7 @@ class PointServiceTest {
     @DisplayName("유저 포인트 히스토리 조회 - 히스토리 리스트가 비어있는 경우")
     void shouldReturnEmptyPointHistoryListWhenNoHistoryExists() {
         // given
-        final Long userId = 1L;
+        final long userId = 1L;
         final UserIdCommand command = new UserIdCommand(userId);
 
         // findAllByUserId 호출 시 빈 리스트 반환하도록 설정
@@ -122,9 +122,9 @@ class PointServiceTest {
     @DisplayName("유저 포인트 충전 - 잔고 최대 금액 초과 시 실패")
     void shouldThrowBusinessExceptionWhenChargeExceedsMax() {
         // given
-        final Long id = 1L;
-        final Long previousPoint = 9999990L;  // 기존 포인트 9,999,990
-        final Long chargeAmount = 20000L;     // 충전할 금액 20,000
+        final long id = 1L;
+        final long previousPoint = 9999990L;  // 기존 포인트 9,999,990
+        final long chargeAmount = 20000L;     // 충전할 금액 20,000
         final UserPointCommand command = new UserPointCommand(id, chargeAmount);
 
         // UserPointRepository의 findById 호출 시 기존 포인트를 가진 유저 반환하도록 설정
@@ -145,9 +145,9 @@ class PointServiceTest {
     @DisplayName("유저 포인트 사용 - 잔고 부족 시 실패")
     void shouldThrowBusinessExceptionWhenUsePointExceeds() {
         // given
-        final Long id = 1L;
-        final Long previousPoint = 500L;  // 기존 포인트 500
-        final Long useAmount = 1000L;     // 사용할 금액 1000 (잔고 부족)
+        final long id = 1L;
+        final long previousPoint = 500L;  // 기존 포인트 500
+        final long useAmount = 1000L;     // 사용할 금액 1000 (잔고 부족)
         final UserPointCommand command = new UserPointCommand(id, useAmount);
 
         // UserPointRepository의 findById 호출 시 기존 포인트를 가진 유저 반환하도록 설정
@@ -208,14 +208,13 @@ class PointServiceTest {
         executorService.shutdown();
 
         // then
-        Long expectedTotalPoints = initialPoint + (chargeAmount * numberOfThreads);
         verify(userPointRepository, times(numberOfThreads)).save(any(UserPoint.class)); // save 메서드가 스레드 수만큼 호출되었는지 확인
         assertThat(successCount.get()).isEqualTo(numberOfThreads); // 성공적으로 저장된 횟수 확인
     }
 
     @Test
     @DisplayName("데드락 테스트 - 동일 ID에 대해 chargePoint와 usePoint 동시 접근 시 데드락 확인")
-    void shouldNotCauseDeadlockWhenUsingSameLock() throws InterruptedException {
+    void shouldNotCauseDeadlockWhenUsingSameLock() {
         // given
         final Long id = 1L;
         final Long initialPoint = 5000L;

@@ -6,8 +6,6 @@ import io.hhplus.tdd.point.entity.PointHistory;
 import io.hhplus.tdd.point.entity.UserPoint;
 import io.hhplus.tdd.point.service.PointService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,8 +14,6 @@ import java.util.List;
 @RequestMapping("/point")
 @RequiredArgsConstructor
 public class PointController {
-
-    private static final Logger log = LoggerFactory.getLogger(PointController.class);
 
     private final PointService pointService;
 

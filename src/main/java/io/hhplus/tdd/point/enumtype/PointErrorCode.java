@@ -2,7 +2,6 @@ package io.hhplus.tdd.point.enumtype;
 
 
 import io.hhplus.tdd.point.error.ErrorCodeEnu;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 

@@ -50,7 +50,7 @@ public class PointServiceImpl implements PointService {
     @Override
     public UserPoint chargePoint(UserPointCommand command) {
         // 동일 ID에 대해 락을 걸어 동기화
-        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock());
+        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock(true));
         lock.lock();
         try {
             // 기존 UserPoint 호출
@@ -82,7 +82,7 @@ public class PointServiceImpl implements PointService {
     @Override
     public UserPoint usePoint(UserPointCommand command) {
         // 동일 ID에 대해 락을 걸어 동기화
-        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock());
+        ReentrantLock lock = locks.computeIfAbsent(command.id(), id -> new ReentrantLock(true));
         lock.lock();
         try {
             // 기존 UserPoint 호출

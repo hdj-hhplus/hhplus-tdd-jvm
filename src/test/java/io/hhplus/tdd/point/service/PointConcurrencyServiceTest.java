@@ -31,7 +31,7 @@ class PointConcurrencyServiceTest {
     private PointServiceImpl pointService;
 
     @Test
-    @DisplayName("동시성 테스트 - 여러 스레드가 동시에 충전 시 순차적으로 처리되는지 확인")
+    @DisplayName("동시성 테스트 - 여러 스레드가 동시에 충전 시 동시성 제어가 되는지 확인")
     void shouldHandleConcurrentChargePointRequests() throws InterruptedException {
         // given
         final long id = 1L;
@@ -132,7 +132,7 @@ class PointConcurrencyServiceTest {
 
     @Test
     @DisplayName("락 테스트 - 동일 ID는 순차적으로 처리되고, 다른 ID는 비동기로 처리되는지 확인")
-    void shouldLockForSameIdAndAllowAsyncForDifferentIds() throws InterruptedException {
+    void shouldLockForSameIdAndAllowAsyncForDifferentIds() {
         // given
         final long id1 = 1L;
         final long id2 = 2L;

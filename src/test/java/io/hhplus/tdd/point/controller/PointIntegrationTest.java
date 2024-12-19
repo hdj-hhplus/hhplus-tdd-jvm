@@ -21,7 +21,7 @@ import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PointControllerTest {
+class PointIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -54,7 +54,6 @@ class PointControllerTest {
         final long id = 1L; // 정상적인 사용자 ID
         final long amount = 1000001L; // 최대 금액을 초과하는 충전 금액
 
-        // 서비스가 MAX_BALANCE_EXCEEDED 예외를 던지도록 설정
         doThrow(new BusinessException(PointErrorCode.MAX_BALANCE_EXCEEDED))
                 .when(pointService).chargePoint(any(UserPointCommand.class));
 
@@ -66,10 +65,8 @@ class PointControllerTest {
         ).andReturn();
 
         // then
-        // 상태 코드 검증
         assertThat(mvcResult.getResponse().getStatus())
                 .isEqualTo(HttpStatus.BAD_REQUEST.value());
-        // 예외 메시지 검증
         assertThat(mvcResult.getResponse().getContentAsString())
                 .contains(PointErrorCode.MAX_BALANCE_EXCEEDED.getMsg());
     }
